@@ -1,8 +1,8 @@
 var nest = require('unofficial-nest-api');
 var NestConnection = require('./lib/nest-connection.js');
+var debounce = require('./lib/debounce.js');
 var inherits = require('util').inherits;
 var Promise = require('bluebird');
-
 var Service, Characteristic, Accessory, uuid, Away;
 var DeviceAccessory, ThermostatAccessory, ProtectAccessory, CamAccessory;
 
@@ -433,7 +433,7 @@ NestThermostatAccessory.prototype.setTargetHeatingCooling = function (targetHeat
 	if (callback) callback(null, targetTemperatureType);
 };
 
-NestThermostatAccessory.prototype.setTargetTemperature = function (targetTemperature, callback) {
+NestThermostatAccessory.prototype.setTargetTemperature = debounce(function(targetTemperature, callback) {
 
 	switch (this.getTargetHeatingCooling()) {
 		case Characteristic.CurrentHeatingCoolingState.HEAT | Characteristic.CurrentHeatingCoolingState.COOL:
@@ -457,7 +457,7 @@ NestThermostatAccessory.prototype.setTargetTemperature = function (targetTempera
 	}
 
 	if (callback) callback(null, targetTemperature);
-};
+}, 1000);
 
 NestThermostatAccessory.prototype.setAway = function (away, callback) {
 	this.log("Setting Away for " + this.name + " to: " + away);
